@@ -249,6 +249,48 @@ def update_record():
 	state_entry.delete(0, END)
 	zipcode_entry.delete(0, END)
 
+# Add record
+def add_record():
+	# Update the database
+	# Create a curslr instanece or connect toone that exists
+	conn = sqlite3.connect('tree_crm.db')
+
+	# Create a cursor instance 
+	c = conn.cursor()
+
+	# Add New Record
+	c.execute("INSERT INTO customers VALUES (:first, :last, :id, :address, :city, :state, :zipcode)",
+		{
+			'first': fn_entry.get(),
+			'last': ln_entry.get(),
+			'id': id_entry.get(),
+			'address': address_entry.get(),
+			'city': city_entry.get(),
+			'state': state_entry.get(),
+			'zipcode': zipcode_entry.get()
+		})
+		
+
+	# Commit changes
+	conn.commit()
+
+	# Close our cinnection
+	conn.close()
+
+	# Clear entry boxes
+	fn_entry.delete(0, END)
+	ln_entry.delete(0, END)
+	id_entry.delete(0, END)
+	address_entry.delete(0, END)
+	city_entry.delete(0, END)
+	state_entry.delete(0, END)
+	zipcode_entry.delete(0, END)
+
+	# Clear The Treeview Table
+	my_tree.delete(*my_tree.get_children())
+
+	query_databases()
+
 # Remove all records
 def remove_all():
 	for record in my_tree.get_children():
@@ -320,7 +362,7 @@ button_frame.pack(fill="x", expand="yes", padx=20)
 update_button = Button(button_frame, text="Update Record", command=update_record)
 update_button.grid(row=0, column=0, padx=10, pady=10)
 
-add_button = Button(button_frame, text="Add Record")
+add_button = Button(button_frame, text="Add Record", command=add_record)
 add_button.grid(row=0, column=1, padx=10, pady=10)
 
 remove_all_button = Button(button_frame, text="Remove All Record", command=remove_all)
