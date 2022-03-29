@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter import messagebox
 import sqlite3
 
 root = Tk()
@@ -300,6 +301,26 @@ def remove_all():
 def remove_one():
 	x = my_tree.selection()[0]
 	my_tree.delete(x)
+
+	# Create a curslr instanece or connect toone that exists
+	conn = sqlite3.connect('tree_crm.db')
+
+	# Create a cursor instance 
+	c = conn.cursor()
+
+	c.execute("DELETE from customers WHERE oid=" + id_entry.get())
+
+	# Commit changes
+	conn.commit()
+
+	# Close our cinnection
+	conn.close()
+
+	# Clear The Entry Boxes
+	clear_entries()
+
+	# Add a little message box for fun
+	messagebox.showinfo("Delete!", "Your Record Has Been Delete!")
 
 # Remove Many records
 def remove_many():
