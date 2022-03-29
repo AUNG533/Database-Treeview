@@ -303,7 +303,7 @@ def remove_all():
 		for record in my_tree.get_children():
 			my_tree.delete(record)
 
-			# Create a curslr instanece or connect toone that exists
+		# Create a curslr instanece or connect toone that exists
 		conn = sqlite3.connect('tree_crm.db')
 
 		# Create a cursor instance 
@@ -353,9 +353,44 @@ def remove_one():
 
 # Remove Many records
 def remove_many():
-	x = my_tree.selection()
-	for record in x:
-		my_tree.delete(record)
+	# Add a little message box for fun
+	response = messagebox.askyesno("WOAH!!!!", "This Will Delete EVERYTHING SELECTED From The Table\nAre You Sure?! ")
+
+	# Add logic for message box
+	if response == 1:
+		# Designate selections
+		x = my_tree.selection()
+		
+		# Create List of ID's
+		ids_to_delete = []
+
+		# Add selection to ids_to_delete lidt
+		for record in x:
+			ids_to_delete.append(my_tree.item(record, 'values')[2])
+
+			
+		# Delete From Treeview
+		for record in x:
+			my_tree.delete(record)
+
+		# Create a curslr instanece or connect toone that exists
+		conn = sqlite3.connect('tree_crm.db')
+
+		# Create a cursor instance 
+		c = conn.cursor()
+
+		# Delete Everything From The Table
+		c.executemany("DELETE FROM customers WHERE id = ?", [(a,) for a in ids_to_delete])
+
+
+		# Commit changes
+		conn.commit()
+
+		# Close our cinnection
+		conn.close()
+
+		# Clear entry boxes if filled
+		clear_entries()
 
 # Move Row Up
 def up():
