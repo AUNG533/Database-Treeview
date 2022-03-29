@@ -294,8 +294,37 @@ def add_record():
 
 # Remove all records
 def remove_all():
-	for record in my_tree.get_children():
-		my_tree.delete(record)
+	# Add a little message box for fun
+	response = messagebox.askyesno("WOAH!!!!", "This Will Delete EVERYTHING From The Table\nAre You Sure?! ")
+
+	# Add logic for message box
+	if response == 1:
+		# Clear the Treeview
+		for record in my_tree.get_children():
+			my_tree.delete(record)
+
+			# Create a curslr instanece or connect toone that exists
+		conn = sqlite3.connect('tree_crm.db')
+
+		# Create a cursor instance 
+		c = conn.cursor()
+
+		# Delete Everything From The Table
+		c.execute("DROP TABLE customers")
+
+
+		# Commit changes
+		conn.commit()
+
+		# Close our cinnection
+		conn.close()
+
+		# Clear entry boxes if filled
+		clear_entries()
+
+		# Recreate The Table
+		create_table_again()
+
 
 # Remove one record
 def remove_one():
@@ -375,6 +404,31 @@ def select_record(e):
 	city_entry.insert(0, values[4])
 	state_entry.insert(0, values[5])
 	zipcode_entry.insert(0, values[6])  
+
+def create_table_again():
+	# Create a curslr instanece or connect toone that exists
+	conn = sqlite3.connect('tree_crm.db')
+
+	# Create a cursor instance 
+	c = conn.cursor()
+
+	# Create Table
+	c.execute("""CREATE TABLE if not exists customers (
+		first_name text,
+		last_name text,
+		id integer,
+		address text,
+		city text,
+		state text,
+		zipcode text)
+		""") 
+
+	# Commit changes
+	conn.commit()
+
+	# Close our cinnection
+	conn.close()
+
 
 # Add Buttons
 button_frame = LabelFrame(root, text="Commands")
