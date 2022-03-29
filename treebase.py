@@ -80,7 +80,7 @@ def query_databases():
 	# Create a cursor instance 
 	c = conn.cursor()
 
-	c.execute("SELECT * FROM customers")
+	c.execute("SELECT rowid, * FROM customers")
 	records = c.fetchall()
 	
 	# Add our data to the screen
@@ -89,9 +89,9 @@ def query_databases():
 
 	for record in records:
 		if count % 2 == 0:
-			my_tree.insert(parent='', index='end', iid=count, text='', values=(record[0], record[1], record[2], record[3], record[4], record[5], record[6]), tags=('evenrow',))
+			my_tree.insert(parent='', index='end', iid=count, text='', values=(record[1], record[2], record[0], record[4], record[5], record[6], record[7]), tags=('evenrow',))
 		else:
-			my_tree.insert(parent='', index='end', iid=count, text='', values=(record[0], record[1], record[2], record[3], record[4], record[5], record[6]), tags=('oddrow',))
+			my_tree.insert(parent='', index='end', iid=count, text='', values=(record[1], record[2], record[0], record[4], record[5], record[6], record[7]), tags=('oddrow',))
 		# increment counter
 		count += 1
 
@@ -310,6 +310,7 @@ select_button.grid(row=0, column=7, padx=10, pady=10)
 
 my_tree.bind("<ButtonRelease-1>", select_record)
 
+# Run to pull data from database on start
 query_databases()
 
 
