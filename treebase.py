@@ -2,10 +2,56 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 import sqlite3
-
+from tkinter import colorchooser
 root = Tk()
 root.title('Tree View & Database')
-root.geometry('1000x500')
+root.geometry('1000x550')
+
+def primary_color():
+	# Pick Color
+	primary_color = colorchooser.askcolor()[1]
+	
+	# Update Treeview
+	if primary_color:
+		# Create Striped Row Tags
+		my_tree.tag_configure('evenrow', background=primary_color)
+
+def secondary_color():
+	# Pick Color
+	secondary_color = colorchooser.askcolor()[1]
+
+	if secondary_color:
+		# Create Striped Row Tags
+		my_tree.tag_configure('oddrow', background=secondary_color)
+
+def highlight_color():
+	highlight_color = colorchooser.askcolor()[1]
+
+	# Update Treeview Color
+	# Change Selected Color
+	if highlight_color:
+		style.map('Treeview',
+			background=[('selected', highlight_color)])
+
+
+
+
+# Add Menu
+my_menu = Menu(root)
+root.config(menu=my_menu)
+
+
+# Configure our menu
+option_menu = Menu(my_menu, tearoff=0)
+my_menu.add_cascade(label="Options", menu=option_menu)
+# Drop down menu
+option_menu.add_command(label="Primary Color", command=primary_color)
+option_menu.add_command(label="Secondary Color", command=secondary_color)
+option_menu.add_command(label="Highlight Color", command=highlight_color)
+option_menu.add_separator()
+option_menu.add_command(label="Exit", command=root.quit)
+
+
 
 '''
 # Add Fake Data
