@@ -3,9 +3,102 @@ from tkinter import ttk
 from tkinter import messagebox
 import sqlite3
 from tkinter import colorchooser
+
+
+
 root = Tk()
 root.title('Tree View & Database')
 root.geometry('1000x550')
+
+def query_databases():
+	# Clear the Treeview
+	for record in my_tree.get_children():
+		my_tree.delete(record)
+		
+	# Create a curslr instanece or connect toone that exists
+	conn = sqlite3.connect('tree_crm.db')
+
+	# Create a cursor instance 
+	c = conn.cursor()
+
+	c.execute("SELECT rowid, * FROM customers")
+	records = c.fetchall()
+	
+	# Add our data to the screen
+	global count
+	count = 0
+
+	for record in records:
+		if count % 2 == 0:
+			my_tree.insert(parent='', index='end', iid=count, text='', values=(record[1], record[2], record[0], record[4], record[5], record[6], record[7]), tags=('evenrow',))
+		else:
+			my_tree.insert(parent='', index='end', iid=count, text='', values=(record[1], record[2], record[0], record[4], record[5], record[6], record[7]), tags=('oddrow',))
+		# increment counter
+		count += 1
+
+	# Commit changes
+	conn.commit()
+
+	# Close our cinnection
+	conn.close()
+
+
+def search_record():
+	lookup_record = search_entry.get()
+	# close the search box
+	search.destroy()
+
+	# Clear the Treeview
+	for record in my_tree.get_children():
+		my_tree.delete(record)
+
+	# Create a curslr instanece or connect toone that exists
+	conn = sqlite3.connect('tree_crm.db')
+
+	# Create a cursor instance 
+	c = conn.cursor()
+
+	c.execute("SELECT rowid, * FROM customers WHERE last_name like ?",(lookup_record,))
+	records = c.fetchall()
+	
+	# Add our data to the screen
+	global count
+	count = 0
+
+	for record in records:
+		if count % 2 == 0:
+			my_tree.insert(parent='', index='end', iid=count, text='', values=(record[1], record[2], record[0], record[4], record[5], record[6], record[7]), tags=('evenrow',))
+		else:
+			my_tree.insert(parent='', index='end', iid=count, text='', values=(record[1], record[2], record[0], record[4], record[5], record[6], record[7]), tags=('oddrow',))
+		# increment counter
+		count += 1
+
+	# Commit changes
+	conn.commit()
+
+	# Close our cinnection
+	conn.close()
+
+
+def lookup_records():
+	global search_entry, search
+
+	search = Toplevel(root)
+	search.title('Lookup Records')
+	search.geometry("400x200")
+
+	# Create label frame
+	search_frame = LabelFrame(search, text="Last Name")
+	search_frame.pack(padx=10, pady=10)
+	
+	# Search entry box
+	search_entry = Entry(search_frame, font=("Helvetica", 18))
+	search_entry.pack(pady=20, padx=20)
+
+	# Add button
+	search_button = Button(search, text="Search Recorsd", command=search_record)
+	search_button.pack(padx=20, pady=20)
+
 
 def primary_color():
 	# Pick Color
@@ -33,9 +126,6 @@ def highlight_color():
 		style.map('Treeview',
 			background=[('selected', highlight_color)])
 
-
-
-
 # Add Menu
 my_menu = Menu(root)
 root.config(menu=my_menu)
@@ -51,34 +141,13 @@ option_menu.add_command(label="Highlight Color", command=highlight_color)
 option_menu.add_separator()
 option_menu.add_command(label="Exit", command=root.quit)
 
-
-
-'''
-# Add Fake Data
-data = [
-	["John", "Elder", 1, "123 Elder St.", "Las Vegas", "NV", "89137"],
-	["Mary", "Smith", 2, "435 West Lookout", "Chicago", "IL", "60610"],
-	["Tim", "Tanaka", 3, "246 Main St.", "New York", "NY", "12345"],
-	["Erin", "Erinton", 4, "333 Top Way.", "Los Angeles", "CA", "90210"],
-	["Bob", "Bobberly", 5, "876 Left St.", "Memphis", "TN", "34321"],
-	["Steve", "Smith", 6, "1234 Main St.", "Miami", "FL", "12321"],
-	["Tina", "Browne", 7, "654 Street Ave.", "Chicago", "IL", "60611"],
-	["Mark", "Lane", 8, "12 East St.", "Nashville", "TN", "54345"],
-	["John", "Smith", 9, "678 North Ave.", "St. Louis", "MO", "67821"],
-	["Mary", "Todd", 10, "9 Elder Way.", "Dallas", "TX", "88948"],
-	["John", "Lincoln", 11, "123 Elder St.", "Las Vegas", "NV", "89137"],
-	["Mary", "Bush", 12, "435 West Lookout", "Chicago", "IL", "60610"],
-	["Tim", "Reagan", 13, "246 Main St.", "New York", "NY", "12345"],
-	["Erin", "Smith", 14, "333 Top Way.", "Los Angeles", "CA", "90210"],
-	["Bob", "Field", 15, "876 Left St.", "Memphis", "TN", "34321"],
-	["Steve", "Target", 16, "1234 Main St.", "Miami", "FL", "12321"],
-	["Tina", "Walton", 17, "654 Street Ave.", "Chicago", "IL", "60611"],
-	["Mark", "Erendale", 18, "12 East St.", "Nashville", "TN", "54345"],
-	["John", "Nowerton", 19, "678 North Ave.", "St. Louis", "MO", "67821"],
-	["Mary", "Hornblower", 20, "9 Elder Way.", "Dallas", "TX", "88948"]
-	
-]
-'''
+# Search Menu
+search_menu = Menu(my_menu, tearoff=0)
+my_menu.add_cascade(label="Search", menu=search_menu)
+# Drop down menu
+search_menu.add_command(label="Search", command=lookup_records)
+search_menu.add_separator()
+search_menu.add_command(label="Reset", command=query_databases)
 
 # Do some database stuff
 # Create a curslr instanece or connect toone that exists
@@ -119,34 +188,6 @@ conn.commit()
 
 # Close our cinnection
 conn.close()
-
-def query_databases():
-	# Create a curslr instanece or connect toone that exists
-	conn = sqlite3.connect('tree_crm.db')
-
-	# Create a cursor instance 
-	c = conn.cursor()
-
-	c.execute("SELECT rowid, * FROM customers")
-	records = c.fetchall()
-	
-	# Add our data to the screen
-	global count
-	count = 0
-
-	for record in records:
-		if count % 2 == 0:
-			my_tree.insert(parent='', index='end', iid=count, text='', values=(record[1], record[2], record[0], record[4], record[5], record[6], record[7]), tags=('evenrow',))
-		else:
-			my_tree.insert(parent='', index='end', iid=count, text='', values=(record[1], record[2], record[0], record[4], record[5], record[6], record[7]), tags=('oddrow',))
-		# increment counter
-		count += 1
-
-	# Commit changes
-	conn.commit()
-
-	# Close our cinnection
-	conn.close()
 
 
 # Add Some Style
@@ -315,8 +356,7 @@ def add_record():
 			'city': city_entry.get(),
 			'state': state_entry.get(),
 			'zipcode': zipcode_entry.get()
-		})
-		
+		})	
 
 	# Commit changes
 	conn.commit()
@@ -358,7 +398,6 @@ def remove_all():
 		# Delete Everything From The Table
 		c.execute("DROP TABLE customers")
 
-
 		# Commit changes
 		conn.commit()
 
@@ -370,7 +409,6 @@ def remove_all():
 
 		# Recreate The Table
 		create_table_again()
-
 
 # Remove one record
 def remove_one():
@@ -413,7 +451,6 @@ def remove_many():
 		# Add selection to ids_to_delete lidt
 		for record in x:
 			ids_to_delete.append(my_tree.item(record, 'values')[2])
-
 			
 		# Delete From Treeview
 		for record in x:
@@ -427,7 +464,6 @@ def remove_many():
 
 		# Delete Everything From The Table
 		c.executemany("DELETE FROM customers WHERE id = ?", [(a,) for a in ids_to_delete])
-
 
 		# Commit changes
 		conn.commit()
@@ -510,7 +546,6 @@ def create_table_again():
 	# Close our cinnection
 	conn.close()
 
-
 # Add Buttons
 button_frame = LabelFrame(root, text="Commands")
 button_frame.pack(fill="x", expand="yes", padx=20)
@@ -543,7 +578,6 @@ my_tree.bind("<ButtonRelease-1>", select_record)
 
 # Run to pull data from database on start
 query_databases()
-
 
 
 root.mainloop()
